@@ -88,6 +88,7 @@ import static com.sun.tools.javac.util.JCDiagnostic.DiagnosticFlag.*;
  * This code and its internal interfaces are subject to change or
  * deletion without notice.</b>
  */
+// 如果有新的注解处理器需要执行，通过这个类的doProcessing方法生成一个新的JavaCompiler对象
 public class JavacProcessingEnvironment implements ProcessingEnvironment, Closeable {
     private final Options options;
 

@@ -851,15 +851,22 @@ public class JavaCompiler {
 
         start_msec = now();
 
+        // 插入式注解处理器的初始化过程在initProcessAnnotations完成
         try {
+            // 准备过程：初始化插入式注解处理器
             initProcessAnnotations(processors);
 
             // These method calls must be chained to avoid memory leaks
             delegateCompiler =
+                // 执行注解处理
                 processAnnotations(
-                    enterTrees(stopIfError(CompileState.PARSE, parseFiles(sourceFileObjects))),
+                    // 过程1.2 ：输入到符号表
+                    enterTrees(stopIfError(CompileState.PARSE,
+                            // 过程1.1：词法分析、语法分析
+                            parseFiles(sourceFileObjects))),
                     classnames);
 
+            // 过程3：分析及字节码生成
             delegateCompiler.compile2();
             delegateCompiler.close();
             elapsed_msec = delegateCompiler.elapsed_msec;
@@ -901,6 +908,10 @@ public class JavaCompiler {
 
             case BY_TODO:
                 while (!todo.isEmpty())
+                    // 过程3.4：generate()方法---生成字节码
+                    // 过程3.3：desugar()方法---解语法糖
+                    // 过程3.2：flow()方法---数据流分析
+                    // 过程3.1：标注
                     generate(desugar(flow(attribute(todo.remove()))));
                 break;
 
@@ -1082,6 +1093,7 @@ public class JavaCompiler {
     // By the time this method exits, log.deferDiagnostics must be set back to false,
     // and all deferredDiagnostics must have been handled: i.e. either reported
     // or determined to be transient, and therefore suppressed.
+    // 插入式注解处理器的执行过程
     public JavaCompiler processAnnotations(List<JCCompilationUnit> roots,
                                            List<String> classnames) {
         if (shouldStop(CompileState.PROCESS)) {
